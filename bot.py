@@ -11,10 +11,13 @@ class TestBot(ch.RoomManager):
     self.setFontColor("FFFFFF")
     self.setFontFace("Latha")
     self.setFontSize(11)
-    TestBot.joinRoom('iwbtschat')
     self.ListNum = 0
     listbox.insert(END, 'Connected to '+room.name+'\n')
-    with open ('ignored.txt', 'r') as f: self.Ignored = f.read()
+    self.Ignored = []
+    try: #Ignored file not 'mandatory' anymore.
+      with open ('ignored.txt', 'r') as f: self.Ignored = f.read()
+    except IOError:
+      print ("Missing 'Ignored.txt' file")
 
   def onMessage(self, room, user, message):
     if user.name not in self.Ignored:
@@ -24,8 +27,9 @@ class TestBot(ch.RoomManager):
       listbox.yview_scroll(self.ListNum, 'p')
 NICK = input("Your Account name: ")
 PASS = input("Your Password: ")
+ROOM = input("Room name: ")
 TestBot = TestBot(NICK,PASS)
-
+TestBot.joinRoom(ROOM)
 TestBot_thread = threading.Thread(target=TestBot.main,)
 TestBot_thread.setDaemon(True)
 TestBot_thread.start()
@@ -40,29 +44,29 @@ class BotGUI(tkinter.Tk):
           return #Return added so only uses one link in message
 
   def get(event):
-    if '!connect' in text.get():
-      TestBot.joinRoom('iwbtschat')
-    elif '!bg' in text.get():
-      if text.get().split()[1].isdigit():
-        listbox.config(bg='#'+str(text.get().split()[1]))
+    try:
+      if '!bg' in text.get():  #Client background colour
+        if text.get().split()[1].isdigit():
+          listbox.config(bg='#'+str(text.get().split()[1]))
+        else:
+          listbox.config(bg=str(text.get().split()[1]))
+      elif '!nc' in text.get():#Name colour
+        TestBot.setNameColor(text.get().split()[1])
+      elif '!bc' in text.get():#Body colour
+        TestBot.setFontColor(text.get().split()[1])
+      elif '!bs' in text.get(): #Body size
+        TestBot.setFontSize(text.get().split()[1])
+      elif '!font' in text.get():#Font name
+        TestBot.setFontFace(text.get().split()[1])
+      elif '!ignore' in text.get():#(Possibly) not working.
+        if text.get().split()[1] in TestBot.Ignored:
+          TestBot.Ignored += text.get().split()[1]
+        else:
+          TestBot.Ignored = TestBot.Ignored.replace(text.get().split()[1],"")
       else:
-        listbox.config(bg=str(text.get().split()[1]))
-    elif '!nc' in text.get():
-      TestBot.setNameColor(text.get().split()[1])
-    elif '!bc' in text.get():
-      TestBot.setFontColor(text.get().split()[1])
-    elif '!bs' in text.get():
-      TestBot.setFontSize(text.get().split()[1])
-    elif '!font' in text.get():
-      TestBot.setFontFace(text.get().split()[1])
-    elif '!ignore' in text.get():
-      if text.get().split()[1] in TestBot.Ignored:
-        TestBot.Ignored += text.get().split()[1]
-      else:
-        TestBot.Ignored = TestBot.Ignored.replace(text.get().split()[1],"")
-    else:
-      room = TestBot.getRoom('iwbtschat')
-      room.message(text.get(), False)  
+        room = TestBot.getRoom(ROOM)
+        room.message(text.get(), False)  
+    except Exception as error: print (error)
     text.delete(0,20000) #Clears Textfield
   
   GUI = tkinter.Tk()
@@ -75,7 +79,7 @@ class BotGUI(tkinter.Tk):
   listbox = Listbox(GUI)
   listbox.bind('<<ListboxSelect>>',Select)
   text.pack(fill=BOTH, side='bottom')
-  listbox.config(bg='#484848', borderwidth=0, selectborderwidth=0, height=20)
+  listbox.config(bg='#484848', borderwidth=0, selectborderwidth=0)
   listbox.pack(side='right',fill=BOTH, expand=1)
 
 gui_thread = threading.Thread(target=tkinter.mainloop(),)
