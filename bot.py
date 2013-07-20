@@ -5,8 +5,6 @@ import time
 import webbrowser
 from tkinter import *
 
-
-
 class TestBot(ch.RoomManager):
   def onConnect(self, room):
     self.setNameColor("333333")
@@ -16,10 +14,10 @@ class TestBot(ch.RoomManager):
     TestBot.joinRoom('iwbtschat')
     self.ListNum = 0
     listbox.insert(END, 'Connected to '+room.name+'\n')
-    with open ('ignored.txt', 'r') as f: self.GUIIgnored = f.read()
+    with open ('ignored.txt', 'r') as f: self.Ignored = f.read()
 
   def onMessage(self, room, user, message):
-    if user.name not in self.GUIIgnored:
+    if user.name not in self.Ignored:
       self.ListNum += 1
       listbox.insert(END, user.name+'-'+time.strftime('%X')+'   '+message.body+'\n')
       listbox.itemconfig(self.ListNum,fg='#'+user.fontColor)
@@ -53,10 +51,19 @@ class BotGUI(tkinter.Tk):
       TestBot.setNameColor(text.get().split()[1])
     elif '!bc' in text.get():
       TestBot.setFontColor(text.get().split()[1])
+    elif '!bs' in text.get():
+      TestBot.setFontSize(text.get().split()[1])
+    elif '!font' in text.get():
+      TestBot.setFontFace(text.get().split()[1])
+    elif '!ignore' in text.get():
+      if text.get().split()[1] in TestBot.Ignored:
+        TestBot.Ignored += text.get().split()[1]
+      else:
+        TestBot.Ignored = TestBot.Ignored.replace(text.get().split()[1],"")
     else:
       room = TestBot.getRoom('iwbtschat')
       room.message(text.get(), False)  
-    text.delete(0,20000)
+    text.delete(0,20000) #Clears Textfield
   
   GUI = tkinter.Tk()
   GUI.title('Chat Client')
