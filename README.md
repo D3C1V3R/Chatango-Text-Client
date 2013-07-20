@@ -6,13 +6,15 @@ GUI client for Chatango that's written with  python and uses TK.
 	Credits to Hanzel/Pystub (Chatango users)
 		Nullspeaker (https://github.com/Nullspeaker/ch.py)
 		
-A 'Optional' file can be created by the user to filter out usernames in the client.
-To do this,
-	Make a file within the same location as the client called 'Ignored.txt'
-	Fill the text file with names, no formatting needed.
+	An 'Optional' file can be created by the user to filter out usernames in the client.
+	To do this,
+	
+	1. Make a file within the same location as the client called 'Ignored.txt'
+	2. Fill the text file with names, no formatting needed.
 	
 
-Commands;
+	Commands;
+	
 	!bg <Hex Colour/Name>
 		Sets client Background colour, Common colour names are useable
 			!bg 123, !bg 112233
