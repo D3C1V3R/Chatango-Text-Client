@@ -55,7 +55,7 @@ class BotGUI(tkinter.Tk):
       elif '!bc' in text.get():#Body colour
         TestBot.setFontColor(text.get().split()[1])
       elif '!bs' in text.get(): #Body size
-        TestBot.setFontSize(text.get().split()[1])
+        TestBot.setFontSize(int(text.get().split()[1]))
       elif '!font' in text.get():#Font name
         TestBot.setFontFace(text.get().split()[1])
       elif '!ignore' in text.get():#(Possibly) not working.
