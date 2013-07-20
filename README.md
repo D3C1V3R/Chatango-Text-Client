@@ -2,5 +2,5 @@ Chatango Text Client
 ====================
 
 GUI client for Chatango that's written with  python and uses TK.
-====================
-Credits to Hanzel/Pystub (Chatango users)
+
+	Credits to Hanzel/Pystub (Chatango users)
