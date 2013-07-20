@@ -1,4 +1,5 @@
-Chatango-Text-Client
+Chatango Text Client
 ====================
 
-GUI client for Chatango that runs via python and uses TK
+GUI client for Chatango that's written with  python and uses TK.
+Credits to Hanzel/Pystub (Chatango users)
