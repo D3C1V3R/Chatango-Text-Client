@@ -39,13 +39,6 @@ class BotGUI (tk.Frame):
     self.botThread = threading.Thread (target = self.bot.main,)
     self.botThread.start ()
 
-  def Select (event):
-    if 'http' in '\n'.join([listbox.get(x) for x in listbox.curselection()]):
-      for i in '\n'.join([listbox.get(x) for x in listbox.curselection()]).split():
-        if 'http' in i:
-          webbrowser.open(i)
-          return #Return added so only uses one link in message
-
   def get (self, event):
     message = self.text.get ()
     post = False
@@ -74,10 +67,12 @@ class BotGUI (tk.Frame):
 
   def post (self, message):
     w = self.helperCanvas.winfo_width ()
-    newEntry = spawner.Label (self.messageStream, text = message, justify = tk.LEFT, width = w, wraplength = w)
+    newEntry = spawner.Label (self.messageStream, text = message,
+      justify = tk.LEFT, width = w, wraplength = w)
     newEntry.pack (side = tk.TOP)
     self.messageStream.update_idletasks ()
-    self.helperCanvas.configure (scrollregion = (0, 0, self.messageStream.winfo_width (), self.messageStream.winfo_height ()))
+    self.helperCanvas.configure (scrollregion = (0, 0,
+      self.messageStream.winfo_width (), self.messageStream.winfo_height ()))
 
   def createWidgets (self):
     self.messageFrame = spawner.Frame (self)
@@ -88,15 +83,18 @@ class BotGUI (tk.Frame):
     self.helperCanvas = tk.Canvas (self.messageFrame)
     self.helperCanvas.grid (row = 0, column = 0, sticky = tk.NSEW)
 
-    vsb = spawner.Scrollbar (self.messageFrame, orient = tk.VERTICAL, command = self.helperCanvas.yview)
+    vsb = spawner.Scrollbar (self.messageFrame, orient = tk.VERTICAL,
+      command = self.helperCanvas.yview)
     vsb.grid (row = 0, column = 1, sticky = tk.NS)
     self.helperCanvas.configure (yscrollcommand = vsb.set)
 
     self.messageStream = spawner.Frame (self.helperCanvas)
-    self.helperCanvas.create_window (0, 0, window = self.messageStream, anchor = tk.NW)
+    self.helperCanvas.create_window (0, 0, window = self.messageStream,
+      anchor = tk.NW)
 
     self.messageStream.update_idletasks ()
-    self.helperCanvas.configure (scrollregion = (0, 0, self.messageStream.winfo_width (), self.messageStream.winfo_height ()))
+    self.helperCanvas.configure (scrollregion = (0, 0,
+      self.messageStream.winfo_width (), self.messageStream.winfo_height ()))
 
     #listbox = Listbox (root)
     #listbox.bind ('<<ListboxSelect>>',Select)
