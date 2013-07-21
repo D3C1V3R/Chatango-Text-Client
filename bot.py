@@ -10,10 +10,16 @@ try:
 except:
   spawner = tk
 
-with open ('settings.json') as f:
-  settings = json.loads (f.read ())
+try:
+  with open ('settingss.json') as f:
+    settings = json.loads (f.read ())
 except:
-  raise Exception ('settings.json file is missing')
+  settings = {
+    'name': input ('user name'),
+    'password': input ('password'),
+    'room': input ('room'),
+    'ignored': []
+  }
 
 class TestBot(ch.RoomManager):
   def onConnect (self, room):
