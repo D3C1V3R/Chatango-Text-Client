@@ -28,6 +28,9 @@ class TestBot(ch.RoomManager):
       listbox.itemconfig(self.ListNum,fg='#'+user.fontColor)
       listbox.yview_scroll(self.ListNum, 'p')
 Ignored = []
+NICK=""
+PASS=""
+ROOM=""
 
 try:
   with open ('settings.txt', 'r') as f: 
@@ -50,7 +53,7 @@ else:
   TestBot = TestBot(NICK,PASS)
   TestBot.joinRoom(ROOM)
   Settings = [NICK, PASS, ROOM, ' ', '999', '9c2afc', '2da446', '0', '11']
-  with open ('settings.txt', 'w') as f: f.write(NICK+'|'+PASS+'|'+ROOM+'| |999|9c2afc|2da446|0|11')
+  with open ('settings.txt', 'w+') as f: f.write(NICK+'|'+PASS+'|'+ROOM+'| |999|9c2afc|2da446|0|11')
 
 TestBot_thread = threading.Thread(target=TestBot.main,)
 TestBot_thread.setDaemon(True)
