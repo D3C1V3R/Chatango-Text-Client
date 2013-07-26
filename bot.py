@@ -1,12 +1,15 @@
 import ch
 import threading
 import tkinter
+import itertools
 import time
-import webbrowser
+#import webbrowser
 from tkinter import *
 
 class TestBot(ch.RoomManager):
   def onConnect(self, room):
+    self.enableBg()
+    listbox.config(state='normal')
     if NICK != "":
       self.setNameColor(Settings[5])
       self.setFontColor(Settings[6])
@@ -19,14 +22,24 @@ class TestBot(ch.RoomManager):
       self.setFontSize(11)    
     self.ListNum = 0
     listbox.insert(END, 'Connected to '+room.name+'\n')
+    listbox.config(state='disabled')
 
 
   def onMessage(self, room, user, message):
+    listbox.config(state='normal')
     if user.name not in Ignored:
       self.ListNum += 1
+
       listbox.insert(END, user.name+'-'+time.strftime('%X')+'   '+message.body+'\n')
-      listbox.itemconfig(self.ListNum,fg='#'+user.fontColor)
-      listbox.yview_scroll(self.ListNum, 'p')
+      Message = user.name+'-'+time.strftime('%X')+'   '+message.body+'\n'
+      listbox.yview_scroll(self.ListNum, 'pages')
+      listbox.tag_add(self.ListNum, float(self.ListNum+1), float(self.ListNum+2))
+      listbox.tag_add(str(self.ListNum)+'a', float(self.ListNum+1), float((self.ListNum)+ 1 + float(str('0.'+str(Message.index(' '))))))
+      Colour = user.fontColor[0]+user.fontColor[0]+user.fontColor[1]+user.fontColor[1]+user.fontColor[2]+user.fontColor[2]
+
+      listbox.tag_configure(str(self.ListNum), font=user.fontFace.replace(' ','')+' 8 ', relief='raised', foreground='#'+Colour,)
+      listbox.tag_configure(str(self.ListNum)+'a', font=user.fontFace.replace(' ','')+' 8 bold', relief='raised', foreground='White')
+      listbox.config(state='disabled')
 Ignored = []
 NICK=""
 PASS=""
@@ -52,23 +65,16 @@ else:
   ROOM = input("Room name: ")
   TestBot = TestBot(NICK,PASS)
   TestBot.joinRoom(ROOM)
-  Settings = [NICK, PASS, ROOM, ' ', '999', '9c2afc', '2da446', '0', '11']
-  with open ('settings.txt', 'w+') as f: f.write(NICK+'|'+PASS+'|'+ROOM+'| |999|9c2afc|2da446|0|11')
+  Settings = [NICK, PASS, ROOM, ' ', '333', '9c2afc', '2da446', '0', '11']
+  with open ('settings.txt', 'w') as f: f.write(NICK+'|'+PASS+'|'+ROOM+'| |333|9c2afc|2da446|0|11')
 
 TestBot_thread = threading.Thread(target=TestBot.main,)
 TestBot_thread.setDaemon(True)
 TestBot_thread.start()
 
 class BotGUI(tkinter.Tk):
-
-  def Select(event):
-    if 'http' in '\n'.join([listbox.get(x) for x in listbox.curselection()]):
-      for i in '\n'.join([listbox.get(x) for x in listbox.curselection()]).split():
-        if 'http' in i:
-          webbrowser.open(i)
-          return #Return added so only uses one link in message
-
   def get(event):
+    listbox.config(state='normal')
     try:
       if '!bg' in text.get(): 
         if text.get().split()[1].isdigit():
@@ -83,6 +89,8 @@ class BotGUI(tkinter.Tk):
         TestBot.setFontSize(int(text.get().split()[1]))
       elif '!font' in text.get():
         TestBot.setFontFace(text.get().split()[1])
+      elif '!quit' in text.get():
+        quit()
       elif '!ignore' in text.get():
         if text.get().split()[1] in TestBot.Ignored:
           TestBot.Ignored += text.get().split()[1]
@@ -92,20 +100,19 @@ class BotGUI(tkinter.Tk):
         room = TestBot.getRoom(ROOM)
         room.message(text.get(), False)  
     except Exception as error: print (error)
-    text.delete(0,20000) #Clears Textfield
+    text.delete(0,20000) 
   
   GUI = tkinter.Tk()
-  GUI.title('Chat Client')
-  GUI.geometry("360x660")
+  GUI.title(ROOM + ' Chat Client')
+  GUI.geometry("300x660")
   GUI.minsize(100,100)
   GUI.wm_attributes("-topmost", 1)
   global listbox,text
   text = Entry(GUI)
+  listbox = Text(GUI)
   text.bind('<Return>', get)
-  listbox = Listbox(GUI)
-  listbox.bind('<<ListboxSelect>>',Select)
   text.pack(fill=BOTH, side='bottom')
-  listbox.config(bg='#'+Settings[4], borderwidth=0, selectborderwidth=0, height=20)
+  listbox.config(bg='#'+Settings[4], borderwidth=0, selectborderwidth=0, font=('Arial',8,'bold') )
   listbox.pack(side='right',fill=BOTH, expand=1)
 
 gui_thread = threading.Thread(target=tkinter.mainloop(),)
