@@ -11,7 +11,7 @@ except:
   spawner = tk
 
 try:
-  with open ('settingss.json') as f:
+  with open ('settings.json') as f:
     settings = json.loads (f.read ())
 except:
   settings = {
@@ -20,13 +20,29 @@ except:
     'room': input ('room'),
     'ignored': []
   }
+  with open ('settings.json', 'w+') as f:
+    f.write (json.dumps (settings, indent = '\t', separators = (',', ': ')))
+
+for s in ['name', 'password', 'room']:
+  if not isinstance (settings[s], str):
+    settings[s] = input ('{}: '.format (s))
+
+if not isinstance (settings['ignored'], list):
+  settings['ignored'] = []
+
+for s in ['name color', 'font color', 'font face']:
+  if s in settings and not isinstance (settings[s], str):
+    del settings[s]
+
+if not isinstance (settings['font size'], int):
+  del settings ['font size']
 
 class TestBot(ch.RoomManager):
   def onConnect (self, room):
-    self.setNameColor ("333333")
-    self.setFontColor ("FFFFFF")
-    self.setFontFace ("Latha")
-    self.setFontSize (11)
+    if settings['name color']: self.setNameColor (settings['name color'])
+    if settings['font color']: self.setFontColor (settings['font color'])
+    if settings['font face']: self.setFontFace (settings['font face'])
+    if settings['font size']: self.setFontSize (settings['font size'])
     self.gui.post ('connected to {}'.format (room.name))
 
   def onMessage (self, room, user, message):
@@ -45,28 +61,19 @@ class BotGUI (tk.Frame):
     self.botThread = threading.Thread (target = self.bot.main,)
     self.botThread.start ()
 
+  def cmd__bg (self, param):
+    self.helperCanvas['bg'] = param
+
   def get (self, event):
     message = self.text.get ()
-    post = False
     r = re.match (r'^!(\w+) (.+)', message)
-    if not r:
-      post = True
-    elif r.group (1) == 'bg':
-      self.helperCanvas.config (bg = r.group (2))
-    elif r.group (1) == 'nc':
-      pass
-    elif r.group (1) == 'bc':
-      pass
-    elif r.group (1) == 'bs':
-      pass
-    elif r.group (1) == 'font':
-      pass
-    elif r.group (1) == 'ignore':
-      pass
+    if r:
+      method = getattr (self, 'cmd__' + r.group (1))
+      if method:
+        method (r.group (2))
+      else:
+        pass # or print some message
     else:
-      post = True
-
-    if post:
       self.bot.getRoom (settings['room']).message (message, False)
 
     self.text.delete (0,20000) #Clears Textfield
@@ -109,7 +116,6 @@ class BotGUI (tk.Frame):
     self.text.bind ('<Return>', self.get)
     #listbox.config (bg='#484848', borderwidth=0, selectborderwidth=0)
     #listbox.pack (side='right', fill=BOTH, expand=1)
-    self.post ('test')
 
 root = tk.Tk ()
 root.title ('Chat Client')
@@ -117,7 +123,3 @@ root.geometry ("360x660")
 root.minsize (100,100)
 gui = BotGUI (master = root)
 gui.mainloop ()
-
-# gui_thread = threading.Thread (target = gui.mainloop,)
-# gui_thread.setDaemon (True)
-# gui_thread.start ()
